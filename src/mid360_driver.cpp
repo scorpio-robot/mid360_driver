@@ -100,10 +100,11 @@ namespace mid360_driver {
         uint8_t buffer[1400];
         asio::ip::udp::endpoint sender_endpoint;
         while (is_running.load(std::memory_order_relaxed)) {
-            auto [error_code, bytes_received] = co_await receive_pointcloud_socket.async_receive_from(
+            asio::error_code error_code;
+            co_await receive_pointcloud_socket.async_receive_from(
                     asio::buffer(buffer, 1400),
                     sender_endpoint,
-                    asio::as_tuple(asio::use_awaitable));
+                    asio::redirect_error(asio::use_awaitable, error_code));
             if (error_code || sender_endpoint.port() != 56300) [[unlikely]] {
                 continue;
             }
@@ -167,10 +168,11 @@ namespace mid360_driver {
         uint8_t buffer[1400];
         asio::ip::udp::endpoint sender_endpoint;
         while (is_running.load(std::memory_order_relaxed)) {
-            auto [error_code, bytes_received] = co_await receive_imu_socket.async_receive_from(
+            asio::error_code error_code;
+            co_await receive_imu_socket.async_receive_from(
                     asio::buffer(buffer, 1400),
                     sender_endpoint,
-                    asio::as_tuple(asio::use_awaitable));
+                    asio::redirect_error(asio::use_awaitable, error_code));
             if (error_code || sender_endpoint.port() != 56400) [[unlikely]] {
                 continue;
             }
