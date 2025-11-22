@@ -2,6 +2,20 @@
 
 This is an implementation of the Mid-360 driver, intended to serve as a replacement for [livox_ros_driver2](https://github.com/Livox-SDK/livox_ros_driver2).
 
+It has the following features:
+
+- It does not rely on Livox-SDK2 but directly implements UDP communication, making it highly lightweight.
+
+- It supports automatically obtaining the LiDAR IP, eliminating the need to configure the LiDAR IP.
+
+- It supports multiple LiDARs.
+
+- When time synchronization is not enabled, it calculates the time difference only once upon the first received message and uses this difference thereafter, ensuring basic time synchronization.
+
+Special note:
+
+- It publishes point clouds in the PointCloud2 format, which differs from the point cloud format of livox_ros_driver2. Users may need to modify code in other packages.
+
 <img src="./img/ACE.jpg" width="200px">
 
 ## Install dependencies
@@ -21,6 +35,7 @@ mid360_driver:
         imu_topic: /livox/imu
         imu_frame: imu_frame
         lidar_publish_time_interval: 0.1
+        host_ip: 192.168.1.50
         is_topic_name_with_lidar_ip: false # 是否在话题名后面加雷达ip，可以用于区分多个雷达
 ```
 
