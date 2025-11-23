@@ -7,12 +7,12 @@
 #pragma once
 
 #include "mid360_driver.h"
-#include <map>
 #include <mutex>
 #include <rclcpp/publisher.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
+#include <unordered_map>
 
 namespace mid360_driver {
 
@@ -53,7 +53,7 @@ namespace mid360_driver {
         std::thread io_thread;
         std::unique_ptr<mid360_driver::Mid360Driver> mid360_driver;
         LidarPublisher lidar_publisher;
-        std::map<asio::ip::address, LidarPublisher> muti_lidar_publisher;
+        std::unordered_map<asio::ip::address, LidarPublisher, IpAddressHasher> muti_lidar_publisher;
         std::vector<std::pair<asio::ip::address, LidarPublisher *>> muti_lidar_publisher_temp;
         rclcpp::TimerBase::SharedPtr publish_pointcloud_timer;
         rclcpp::TimerBase::SharedPtr publish_imu_timer;

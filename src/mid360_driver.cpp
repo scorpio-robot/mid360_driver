@@ -75,6 +75,29 @@ namespace mid360_driver {
 
 #pragma pack()
 
+    void combine_4_bytes(std::size_t &seed, const unsigned char *bytes) {
+        const std::size_t bytes_hash =
+                (static_cast<std::size_t>(bytes[0]) << 24) |
+                (static_cast<std::size_t>(bytes[1]) << 16) |
+                (static_cast<std::size_t>(bytes[2]) << 8) |
+                (static_cast<std::size_t>(bytes[3]));
+        seed ^= bytes_hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+
+    std::size_t IpAddressHasher::operator()(const asio::ip::address &addr) const noexcept {
+        if (addr.is_v4()) {
+            return std::hash<unsigned int>()(addr.to_v4().to_uint());
+        } else {
+            const asio::ip::address_v6::bytes_type bytes = addr.to_v6().to_bytes();
+            std::size_t result = static_cast<std::size_t>(addr.to_v6().scope_id());
+            combine_4_bytes(result, &bytes[0]);
+            combine_4_bytes(result, &bytes[4]);
+            combine_4_bytes(result, &bytes[8]);
+            combine_4_bytes(result, &bytes[12]);
+            return result;
+        }
+    }
+
     Mid360Driver::Mid360Driver(asio::io_context &io_context,
                                const asio::ip::address &host_ip,
                                const std::function<void(const asio::ip::address &lidar_ip, const std::vector<Point> &points)> &on_receive_pointcloud,
